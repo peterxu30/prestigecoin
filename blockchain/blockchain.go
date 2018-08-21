@@ -33,7 +33,7 @@ func (bc *Blockchain) GetDifficulty() int {
 	return bc.difficulty
 }
 
-//potentially dangerous, may need to return copies of the chain
+// Potentially dangerous, may need to return copies of the chain. Counter: No one should have access to the source blockchain anyway.
 func (bc *Blockchain) GetBlockchain() []Block {
 	return bc.blocks
 }
