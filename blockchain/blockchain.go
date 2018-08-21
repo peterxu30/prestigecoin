@@ -1,20 +1,20 @@
 package blockchain
 
 type Blockchain struct {
-	blocks     []Block
+	blocks     []*Block
 	difficulty int
 }
 
 func NewBlockChain(difficulty int) *Blockchain {
-	blocks := []Block{NewGenesisSTBlock()}
+	blocks := []*Block{NewGenesisSTBlock()}
 	return &Blockchain{
 		blocks:     blocks,
 		difficulty: difficulty,
 	}
 }
 
-func NewGenesisSTBlock() Block {
-	return NewSTBlock(
+func NewGenesisSTBlock() *Block {
+	return NewBlock(
 		0,
 		[]byte{},
 		[]byte("Genesis Block"))
@@ -22,7 +22,7 @@ func NewGenesisSTBlock() Block {
 
 func (bc *Blockchain) AddBlock(data string) {
 	prevBlock := bc.blocks[len(bc.blocks)-1]
-	newBlock := NewSTBlock(
+	newBlock := NewBlock(
 		bc.difficulty,
 		prevBlock.GetHash(),
 		[]byte(data))
@@ -34,6 +34,6 @@ func (bc *Blockchain) GetDifficulty() int {
 }
 
 // Potentially dangerous, may need to return copies of the chain. Counter: No one should have access to the source blockchain anyway.
-func (bc *Blockchain) GetBlockchain() []Block {
+func (bc *Blockchain) GetBlockchain() []*Block {
 	return bc.blocks
 }

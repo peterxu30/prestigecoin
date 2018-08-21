@@ -10,12 +10,12 @@ import (
 )
 
 type ProofOfWork struct {
-	block      Block
+	block      *Block
 	target     *big.Int
 	targetBits int
 }
 
-func NewProofOfWork(block Block, targetBits int) *ProofOfWork {
+func NewProofOfWork(block *Block, targetBits int) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 
