@@ -1,42 +1,56 @@
 package blockchain
 
 import (
-	"fmt"
+	"log"
 	"testing"
 )
 
 const (
-	Difficulty = 24
+	Difficulty = 10 // Easy difficulty for testing purposes.
 )
 
 func TestBlockchain(t *testing.T) {
+	log.Println("Test start.")
 
-	bc := NewBlockChain(Difficulty)
+	bc, err := NewBlockChain(Difficulty)
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println("Blockchain created.")
 
 	msg1 := "John has 2 more PrestigeCoin than Jane"
 	msg2 := "Jane has 10 more PrestigeCoin than David"
 
-	bc.AddBlock("John has 2 more PrestigeCoin than Jane")
-	bc.AddBlock("Jane has 10 more PrestigeCoin than David")
-
-	blocks := bc.GetBlockchain()
-
-	if len(blocks) != 3 {
-		t.Error("Expected 3 blocks, got ", len(blocks))
+	err = bc.AddBlock(msg1)
+	if err != nil {
+		log.Println(err)
 	}
 
-	for _, block := range blocks {
-		fmt.Printf("Data: %s\n", block.GetData())
+	err = bc.AddBlock(msg2)
+	if err != nil {
+		log.Println(err)
 	}
 
-	data1 := string(blocks[1].GetData())
-	if data1 != msg1 {
-		t.Error("Block1 held incorrect data")
+	log.Println("Blocks added.")
+
+	bci := bc.Iterator()
+
+	currBlock := bci.Next()
+	currMsg := string(currBlock.GetData())
+	if currMsg != msg2 {
+		t.Errorf("Block held incorrect data. Expected: %s but got %s", msg2, currMsg)
 	}
 
-	data2 := string(blocks[2].GetData())
-	if data2 != msg2 {
-		t.Error("Block2 held incorrect data")
+	currBlock = bci.Next()
+	currMsg = string(currBlock.GetData())
+	if string(currBlock.GetData()) != msg1 {
+		t.Errorf("Block held incorrect data. Expected: %s but got %s", msg1, currMsg)
 	}
 
+	currBlock = bci.Next()
+	currMsg = string(currBlock.GetData())
+	if string(currBlock.GetData()) != "Genesis Block" {
+		t.Errorf("Block held incorrect data. Expected: %s but got %s", "Genesis Block", currMsg)
+	}
 }

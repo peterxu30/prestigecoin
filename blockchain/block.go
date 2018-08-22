@@ -1,83 +1,111 @@
 package blockchain
 
 import (
+	"bytes"
+	"encoding/gob"
 	"time"
 )
 
 type Block struct {
-	header *BlockHeader
-	data   []byte
+	Header *BlockHeader
+	Data   []byte
 }
 
 type BlockHeader struct {
-	timestamp  int64
-	hash       []byte
-	prevHash   []byte
-	nonce      int
-	difficulty int
+	Timestamp  int64
+	Hash       []byte
+	PrevHash   []byte
+	Nonce      int
+	Difficulty int
 }
 
 func NewBlock(difficulty int, prevHash []byte, data []byte) *Block {
-	header := &BlockHeader{
-		timestamp:  time.Now().Unix(),
-		prevHash:   prevHash,
-		difficulty: difficulty,
+	Header := &BlockHeader{
+		Timestamp:  time.Now().Unix(),
+		PrevHash:   prevHash,
+		Difficulty: difficulty,
 	}
 
 	block := &Block{
-		header: header,
-		data:   data,
+		Header: Header,
+		Data:   data,
 	}
 
 	pow := NewProofOfWork(block, difficulty)
 	nonce, hash := pow.Run()
 
-	header.hash = hash
-	header.nonce = nonce
+	Header.Hash = hash
+	Header.Nonce = nonce
 
 	return block
 }
 
 func (block *Block) GetTimestamp() int64 {
-	return block.header.GetTimestamp()
+	return block.Header.GetTimestamp()
 }
 
 func (block *Block) GetHash() []byte {
-	return block.header.GetHash()
+	return block.Header.GetHash()
 }
 
 func (block *Block) GetPreviousHash() []byte {
-	return block.header.GetPreviousHash()
+	return block.Header.GetPreviousHash()
 }
 
 func (block *Block) GetNonce() int {
-	return block.header.GetNonce()
+	return block.Header.GetNonce()
 }
 
 func (block *Block) GetDifficulty() int {
-	return block.header.GetDifficulty()
+	return block.Header.GetDifficulty()
 }
 
 func (block *Block) GetData() []byte {
-	return block.data
+	return block.Data
 }
 
-func (header *BlockHeader) GetTimestamp() int64 {
-	return header.timestamp
+func (block *Block) Serialize() ([]byte, error) {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+
+	err := encoder.Encode(block)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Bytes(), nil
 }
 
-func (header *BlockHeader) GetHash() []byte {
-	return header.hash
+func DeserializeBlock(d []byte) (*Block, error) {
+	var block Block
+
+	decoder := gob.NewDecoder(bytes.NewReader(d))
+	err := decoder.Decode(&block)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &block, nil
 }
 
-func (header *BlockHeader) GetPreviousHash() []byte {
-	return header.prevHash
+func (Header *BlockHeader) GetTimestamp() int64 {
+	return Header.Timestamp
 }
 
-func (header *BlockHeader) GetNonce() int {
-	return header.nonce
+func (Header *BlockHeader) GetHash() []byte {
+	return Header.Hash
 }
 
-func (header *BlockHeader) GetDifficulty() int {
-	return header.difficulty
+func (Header *BlockHeader) GetPreviousHash() []byte {
+	return Header.PrevHash
+}
+
+func (Header *BlockHeader) GetNonce() int {
+	return Header.Nonce
+}
+
+func (Header *BlockHeader) GetDifficulty() int {
+	return Header.Difficulty
 }
