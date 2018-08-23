@@ -31,7 +31,7 @@ func NewBlockChain(difficulty int) (*Blockchain, error) {
 func newBlockChainWithDbPath(difficulty int, dbPath string) (*Blockchain, error) {
 	fullDbPath := dbPath + "/" + dbFile
 	if _, err := os.Stat(fullDbPath); os.IsNotExist(err) {
-		err = os.MkdirAll(fullDbPath, 0700)
+		err = os.MkdirAll(dbPath, 0700)
 		if err != nil {
 			return nil, err
 		}

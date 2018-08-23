@@ -3,7 +3,6 @@ package blockchain
 import (
 	"bytes"
 	"encoding/gob"
-	"log"
 	"time"
 )
 
@@ -21,13 +20,12 @@ type BlockHeader struct {
 }
 
 func NewBlock(difficulty int, prevHash []byte, data []byte) *Block {
-	log.Println(difficulty, prevHash, data)
 	header := &BlockHeader{
 		Timestamp:  time.Now().Unix(),
 		PrevHash:   prevHash,
 		Difficulty: difficulty,
 	}
-	log.Println("created header")
+
 	block := &Block{
 		Header: header,
 		Data:   data,

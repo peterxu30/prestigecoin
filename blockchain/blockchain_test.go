@@ -11,6 +11,7 @@ const (
 	difficulty = 10 // Easy difficulty for testing purposes.
 )
 
+// MUST defer bc.db.Close() during the test or test teardown will panic.
 func testSetup(t *testing.T) func(t *testing.T) {
 	removeTestDB()
 
@@ -38,6 +39,7 @@ func TestBlockchainHappyPath(t *testing.T) {
 	if err != nil {
 		log.Println(err)
 	}
+	defer bc.db.Close()
 
 	log.Println("Blockchain created.")
 
@@ -74,5 +76,10 @@ func TestBlockchainHappyPath(t *testing.T) {
 	currMsg = string(currBlock.GetData())
 	if string(currBlock.GetData()) != "Genesis Block" {
 		t.Errorf("Block held incorrect data. Expected: %s but got %s", "Genesis Block", currMsg)
+	}
+
+	currBlock = bci.Next()
+	if currBlock != nil {
+		t.Errorf("Blockchain should be of length 3 but was not.")
 	}
 }
