@@ -8,7 +8,7 @@ import (
 
 const (
 	dbDir        = ".db"
-	dbFile       = ".db/main.db"
+	dbFile       = "main.db"
 	blocksBucket = "blocksBucket"
 	headBlock    = "head"
 )
@@ -25,11 +25,19 @@ type BlockchainIterator struct {
 }
 
 func NewBlockChain(difficulty int) (*Blockchain, error) {
-	if _, err := os.Stat(dbDir); os.IsNotExist(err) {
-		os.Mkdir(dbDir, 0700)
+	return newBlockChainWithDbPath(difficulty, dbDir)
+}
+
+func newBlockChainWithDbPath(difficulty int, dbPath string) (*Blockchain, error) {
+	fullDbPath := dbPath + "/" + dbFile
+	if _, err := os.Stat(fullDbPath); os.IsNotExist(err) {
+		err = os.MkdirAll(fullDbPath, 0700)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	db, err := bolt.Open(dbFile, 0600, nil)
+	db, err := bolt.Open(fullDbPath, 0600, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +96,8 @@ func NewGenesisBlock() *Block {
 		[]byte("Genesis Block"))
 }
 
-func (bc *Blockchain) AddBlock(data string) error {
-	newBlock := NewBlock(bc.difficulty, bc.head, []byte(data))
+func (bc *Blockchain) AddBlock(data []byte) error {
+	newBlock := NewBlock(bc.difficulty, bc.head, data)
 
 	err := bc.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
@@ -139,7 +147,7 @@ func (bci *BlockchainIterator) Next() *Block {
 	block, err := DeserializeBlock(encodedBlock)
 
 	if err != nil {
-		panic(err)
+		panic(err) // consider switching to return error
 	}
 
 	bci.currentHash = block.GetPreviousHash()

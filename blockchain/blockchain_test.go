@@ -2,17 +2,39 @@ package blockchain
 
 import (
 	"log"
+	"os"
 	"testing"
 )
 
 const (
-	Difficulty = 10 // Easy difficulty for testing purposes.
+	testDbDir  = ".testing_db"
+	difficulty = 10 // Easy difficulty for testing purposes.
 )
 
-func TestBlockchain(t *testing.T) {
+func testSetup(t *testing.T) func(t *testing.T) {
+	removeTestDB()
+
+	return func(t *testing.T) {
+		removeTestDB()
+	}
+}
+
+func removeTestDB() {
+	if _, err := os.Stat(testDbDir); !os.IsNotExist(err) {
+		err = os.RemoveAll(testDbDir)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+}
+
+func TestBlockchainHappyPath(t *testing.T) {
+	testTearDown := testSetup(t)
+	defer testTearDown(t)
+
 	log.Println("Test start.")
 
-	bc, err := NewBlockChain(Difficulty)
+	bc, err := newBlockChainWithDbPath(difficulty, testDbDir)
 	if err != nil {
 		log.Println(err)
 	}
@@ -22,12 +44,12 @@ func TestBlockchain(t *testing.T) {
 	msg1 := "John has 2 more PrestigeCoin than Jane"
 	msg2 := "Jane has 10 more PrestigeCoin than David"
 
-	err = bc.AddBlock(msg1)
+	err = bc.AddBlock([]byte(msg1))
 	if err != nil {
 		log.Println(err)
 	}
 
-	err = bc.AddBlock(msg2)
+	err = bc.AddBlock([]byte(msg2))
 	if err != nil {
 		log.Println(err)
 	}
