@@ -125,14 +125,19 @@ func (bc *Blockchain) GetDifficulty() int {
 	return bc.difficulty
 }
 
+func (bc *Blockchain) Close() error {
+	err := bc.db.Close()
+	return err
+}
+
 func (bc *Blockchain) Iterator() *BlockchainIterator {
 	bci := &BlockchainIterator{bc.head, bc.db}
 	return bci
 }
 
-func (bci *BlockchainIterator) Next() *Block {
+func (bci *BlockchainIterator) Next() (*Block, error) {
 	if bci.currentHash == nil {
-		return nil
+		return nil, nil
 	}
 
 	var encodedBlock []byte
@@ -144,13 +149,17 @@ func (bci *BlockchainIterator) Next() *Block {
 		return nil
 	})
 
+	if err != nil {
+		return nil, err
+	}
+
 	block, err := DeserializeBlock(encodedBlock)
 
 	if err != nil {
-		panic(err) // consider switching to return error
+		return nil, err
 	}
 
 	bci.currentHash = block.GetPreviousHash()
 
-	return block
+	return block, nil
 }

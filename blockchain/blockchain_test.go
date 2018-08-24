@@ -11,7 +11,7 @@ const (
 	difficulty = 10 // Easy difficulty for testing purposes.
 )
 
-// MUST defer bc.db.Close() during the test or test teardown will panic.
+// MUST defer bc.Close() during the test or test teardown will panic.
 func testSetup(t *testing.T) func(t *testing.T) {
 	removeTestDB()
 
@@ -39,7 +39,7 @@ func TestBlockchainHappyPath(t *testing.T) {
 	if err != nil {
 		log.Println(err)
 	}
-	defer bc.db.Close()
+	defer bc.Close()
 
 	log.Println("Blockchain created.")
 
@@ -60,25 +60,25 @@ func TestBlockchainHappyPath(t *testing.T) {
 
 	bci := bc.Iterator()
 
-	currBlock := bci.Next()
+	currBlock, _ := bci.Next()
 	currMsg := string(currBlock.GetData())
 	if currMsg != msg2 {
 		t.Errorf("Block held incorrect data. Expected: %s but got %s", msg2, currMsg)
 	}
 
-	currBlock = bci.Next()
+	currBlock, _ = bci.Next()
 	currMsg = string(currBlock.GetData())
 	if string(currBlock.GetData()) != msg1 {
 		t.Errorf("Block held incorrect data. Expected: %s but got %s", msg1, currMsg)
 	}
 
-	currBlock = bci.Next()
+	currBlock, _ = bci.Next()
 	currMsg = string(currBlock.GetData())
 	if string(currBlock.GetData()) != "Genesis Block" {
 		t.Errorf("Block held incorrect data. Expected: %s but got %s", "Genesis Block", currMsg)
 	}
 
-	currBlock = bci.Next()
+	currBlock, _ = bci.Next()
 	if currBlock != nil {
 		t.Errorf("Blockchain should be of length 3 but was not.")
 	}
