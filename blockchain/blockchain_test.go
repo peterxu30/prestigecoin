@@ -35,7 +35,7 @@ func TestBlockchainHappyPath(t *testing.T) {
 
 	log.Println("Test start.")
 
-	bc, err := newBlockChainWithDbPath(difficulty, testDbDir)
+	bc, err := newBlockChainWithDbPath(difficulty, testDbDir, nil)
 	if err != nil {
 		log.Println(err)
 	}

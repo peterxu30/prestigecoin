@@ -24,11 +24,11 @@ type BlockchainIterator struct {
 	db          *bolt.DB
 }
 
-func NewBlockChain(difficulty int) (*Blockchain, error) {
-	return newBlockChainWithDbPath(difficulty, dbDir)
+func NewBlockChain(difficulty int, genesisData []byte) (*Blockchain, error) {
+	return newBlockChainWithDbPath(difficulty, dbDir, genesisData)
 }
 
-func newBlockChainWithDbPath(difficulty int, dbPath string) (*Blockchain, error) {
+func newBlockChainWithDbPath(difficulty int, dbPath string, genesisData []byte) (*Blockchain, error) {
 	fullDbPath := dbPath + "/" + dbFile
 	if _, err := os.Stat(fullDbPath); os.IsNotExist(err) {
 		err = os.MkdirAll(dbPath, 0700)
@@ -55,7 +55,7 @@ func newBlockChainWithDbPath(difficulty int, dbPath string) (*Blockchain, error)
 				return err
 			}
 
-			genesisBlock := NewGenesisBlock()
+			genesisBlock := NewGenesisBlock(genesisData)
 			encodedGenesisBlock, err := genesisBlock.Serialize()
 
 			if err != nil {
@@ -89,11 +89,14 @@ func newBlockChainWithDbPath(difficulty int, dbPath string) (*Blockchain, error)
 	return blockchain, nil
 }
 
-func NewGenesisBlock() *Block {
+func NewGenesisBlock(data []byte) *Block {
+	if data == nil {
+		data = []byte("Genesis Block")
+	}
 	return NewBlock(
 		0,
 		nil,
-		[]byte("Genesis Block"))
+		data)
 }
 
 func (bc *Blockchain) AddBlock(data []byte) error {
