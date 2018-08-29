@@ -157,7 +157,6 @@ func (bci *BlockchainIterator) Next() (*Block, error) {
 	}
 
 	block, err := DeserializeBlock(encodedBlock)
-
 	if err != nil {
 		return nil, err
 	}

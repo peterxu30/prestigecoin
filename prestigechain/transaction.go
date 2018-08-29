@@ -11,6 +11,14 @@ const (
 	newAchievement = "New Achievement"
 )
 
+type TXType int
+
+const (
+	Achievement TXType = iota
+	Comparison
+	Association
+)
+
 type Transaction struct {
 	ID   []byte
 	Vin  []TXInput
@@ -21,6 +29,7 @@ type TXInput struct {
 	Txid      []byte
 	Vout      int
 	ScriptSig string
+	Type      TXType
 	Reason    string
 }
 
@@ -33,7 +42,7 @@ func NewAchievementTX(value int, to, reason string) *Transaction {
 
 	data := fmt.Sprintf("%d PrestigeCoins awarded to '%s' for %s", value, to, reason)
 
-	txin := TXInput{[]byte{}, -1, newAchievement, data}
+	txin := TXInput{[]byte{}, -1, newAchievement, Achievement, data}
 	txout := TXOutput{value, to}
 	tx := &Transaction{
 		ID:   nil,
@@ -56,4 +65,24 @@ func (tx *Transaction) SetID() error {
 	hash = sha256.Sum256(encoded.Bytes())
 	tx.ID = hash[:]
 	return nil
+}
+
+func SerializeTXs(transactions []*Transaction) ([]byte, error) {
+	var data bytes.Buffer
+	encoder := gob.NewEncoder(&data)
+	err := encoder.Encode(transactions)
+	return data.Bytes(), err
+}
+
+func DeserializeTXs(encodedTransactions []byte) ([]*Transaction, error) {
+	var transactions []*Transaction
+
+	decoder := gob.NewDecoder(bytes.NewReader(encodedTransactions))
+	err := decoder.Decode(&transactions)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
 }
