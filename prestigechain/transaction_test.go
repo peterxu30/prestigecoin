@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"math/rand"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
-	to     = "tester"
-	reason = "testing"
+	to              = "tester"
+	reason          = "testing"
+	maxStringLength = 50
 )
 
 func TestTXEncodeAndDecodeHappyPath(t *testing.T) {
-	tx := NewAchievementTX(rand.Int(), to, reason)
+	tx := CreateTestTX()
 	data, err := SerializeTXs([]*Transaction{tx})
 	if err != nil {
 		t.Errorf("Serializing failed with error %s", err.Error())
@@ -26,10 +29,21 @@ func TestTXEncodeAndDecodeHappyPath(t *testing.T) {
 	}
 
 	sameTx := txs[0]
+	assert.True(t, CompareTX(tx, sameTx))
+}
 
-	if !CompareTX(tx, sameTx) {
-		t.Errorf("F")
+func CreateTestTX() *Transaction {
+	tx := NewAchievementTX(rand.Int(), GenerateRandomString(), GenerateRandomString())
+	return tx
+}
+
+func GenerateRandomString() string {
+	length := rand.Intn(maxStringLength)
+	var s string
+	for i := 0; i < length; i++ {
+		s += string('A' - 1 + rand.Intn(26))
 	}
+	return s
 }
 
 func CompareTX(tx1 *Transaction, tx2 *Transaction) bool {
