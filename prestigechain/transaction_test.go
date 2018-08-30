@@ -66,7 +66,7 @@ func CompareTX(tx1 *Transaction, tx2 *Transaction) bool {
 	for i, txi := range tx1Vin {
 		txi2 := tx2Vin[i]
 
-		if !CompareTXInput(txi, txi2) {
+		if !EqualTXInput(txi, txi2) {
 			fmt.Println("F")
 			return false
 		}
@@ -79,7 +79,7 @@ func CompareTX(tx1 *Transaction, tx2 *Transaction) bool {
 	for i, txo := range tx1Vout {
 		txo2 := tx2Vout[i]
 
-		if !CompareTXOutput(txo, txo2) {
+		if !EqualTXOutput(txo, txo2) {
 			fmt.Println("G")
 			return false
 		}
@@ -88,7 +88,7 @@ func CompareTX(tx1 *Transaction, tx2 *Transaction) bool {
 	return true
 }
 
-func CompareTXInput(in1 TXInput, in2 TXInput) bool {
+func EqualTXInput(in1 TXInput, in2 TXInput) bool {
 	if in1.Reason != in2.Reason {
 		return false
 	}
@@ -112,7 +112,7 @@ func CompareTXInput(in1 TXInput, in2 TXInput) bool {
 	return true
 }
 
-func CompareTXOutput(out1 TXOutput, out2 TXOutput) bool {
+func EqualTXOutput(out1 TXOutput, out2 TXOutput) bool {
 	if out1.ScriptPubKey != out2.ScriptPubKey {
 		return false
 	}
