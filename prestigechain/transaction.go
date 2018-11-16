@@ -20,34 +20,23 @@ const (
 )
 
 type Transaction struct {
-	ID   []byte
-	Vin  []TXInput
-	Vout []TXOutput
-}
-
-type TXInput struct {
-	Txid      []byte
-	Vout      int
-	ScriptSig string
-	Type      TXType
-	Reason    string
-}
-
-type TXOutput struct {
-	Value        int
-	ScriptPubKey string
+	ID                     []byte
+	Type                   TXType
+	Reason                 string
+	Value                  int
+	RelevantTransactionIds [][]byte
 }
 
 func NewAchievementTX(value int, to, reason string) *Transaction {
 
-	data := fmt.Sprintf("%d PrestigeCoins awarded to '%s' for %s", value, to, reason)
+	achievementReason := fmt.Sprintf("%d PrestigeCoins awarded to '%s' for %s", value, to, reason)
 
-	txin := TXInput{[]byte{}, -1, newAchievement, Achievement, data}
-	txout := TXOutput{value, to}
 	tx := &Transaction{
-		ID:   nil,
-		Vin:  []TXInput{txin},
-		Vout: []TXOutput{txout},
+		ID:     nil,
+		Type:   Achievement,
+		Reason: achievementReason,
+		Value:  value,
+		RelevantTransactionIds: make([][]byte, 0),
 	}
 	tx.SetID()
 	return tx
@@ -66,6 +55,22 @@ func (tx *Transaction) SetID() error {
 	tx.ID = hash[:]
 	return nil
 }
+
+func AreEqualTransactionIds(id1 []byte, id2 []byte) bool {
+	return bytes.Equal(id1, id2)
+}
+
+// func (in *TXInput) CanUnlockOutputWith(unlockingData string) bool {
+// 	return in.ScriptSig == unlockingData
+// }
+
+// func (out *TXOutput) CanBeUnlockedWith(unlockingData string) bool {
+// 	return out.ScriptPubKey == unlockingData
+// }
+
+// func (tx Transaction) IsNewAchievement() bool {
+// 	return len(tx.Vin) == 1 && len(tx.Vin[0].Txid) == 0 && tx.Vin[0].Vout == -1
+// }
 
 func SerializeTXs(transactions []*Transaction) ([]byte, error) {
 	var data bytes.Buffer

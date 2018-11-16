@@ -64,6 +64,10 @@ func (block *Block) GetData() []byte {
 	return block.Data
 }
 
+func (block *Block) IsLastBlock() bool {
+	return len(block.GetPreviousHash()) == 0
+}
+
 func (block *Block) Serialize() ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
