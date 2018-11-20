@@ -21,22 +21,24 @@ const (
 
 type Transaction struct {
 	ID                     []byte
+	User                   string
 	Type                   TXType
-	Reason                 string
 	Value                  int
+	Reason                 string
 	RelevantTransactionIds [][]byte
 }
 
-func NewAchievementTX(value int, to, reason string) *Transaction {
+func NewAchievementTX(user string, value int, reason string, relevantTxIds [][]byte) *Transaction {
 
-	achievementReason := fmt.Sprintf("%d PrestigeCoins awarded to '%s' for %s", value, to, reason)
+	achievementReason := fmt.Sprintf("%d PrestigeCoins awarded to '%s' for %s", value, user, reason)
 
 	tx := &Transaction{
 		ID:     nil,
+		User:   user,
 		Type:   Achievement,
 		Reason: achievementReason,
 		Value:  value,
-		RelevantTransactionIds: make([][]byte, 0),
+		RelevantTransactionIds: relevantTxIds,
 	}
 	tx.SetID()
 	return tx

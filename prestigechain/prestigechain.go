@@ -6,7 +6,7 @@ import (
 
 const (
 	difficulty             = 10
-	genesisAddress         = "Genesis Block"
+	genesisBlockCreator    = "The Architects"
 	genesisBlockCreatedMsg = "Mined Genesis Block"
 )
 
@@ -19,7 +19,7 @@ type PrestigechainIterator struct {
 }
 
 func NewPrestigechain() (*Prestigechain, error) {
-	genesisTx := NewAchievementTX(0, genesisAddress, genesisBlockCreatedMsg)
+	genesisTx := NewAchievementTX(genesisBlockCreator, 0, genesisBlockCreatedMsg, nil)
 	encodedGenesisTx, err := SerializeTXs([]*Transaction{genesisTx})
 	if err != nil {
 		return nil, err

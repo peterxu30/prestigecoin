@@ -2,7 +2,6 @@ package prestigechain
 
 import (
 	"bytes"
-	"fmt"
 	"math/rand"
 	"testing"
 
@@ -10,12 +9,24 @@ import (
 )
 
 const (
-	to              = "tester"
+	user            = "tester"
 	reason          = "testing"
 	maxStringLength = 50
 )
 
+// Work in progress
+// func testSetup(t *testing.T) func(t *testing.T) {
+// 	blockchain.DeleteBlockchain()
+
+// 	return func(t *testing.T) {
+// 		blockchain.DeleteBlockchain()
+// 	}
+// }
+
 func TestTXEncodeAndDecodeHappyPath(t *testing.T) {
+	//testTearDown := testSetup(t)
+	//defer testTearDown(t)
+
 	tx := CreateTestTX()
 	data, err := SerializeTXs([]*Transaction{tx})
 	if err != nil {
@@ -33,7 +44,8 @@ func TestTXEncodeAndDecodeHappyPath(t *testing.T) {
 }
 
 func CreateTestTX() *Transaction {
-	tx := NewAchievementTX(rand.Int(), GenerateRandomString(), GenerateRandomString())
+	bytes := GenerateRandomBytes(30)
+	tx := NewAchievementTX(user, rand.Int(), GenerateRandomString(), [][]byte{bytes})
 	return tx
 }
 
@@ -46,79 +58,43 @@ func GenerateRandomString() string {
 	return s
 }
 
+func GenerateRandomBytes(length int) []byte {
+	p := make([]byte, length)
+	rand.Read(p)
+	return p
+}
+
+// Function is overkill. In general use, comparing if the transaction IDs will suffice for identity checks. (No reason to check for equality.)
 func CompareTX(tx1 *Transaction, tx2 *Transaction) bool {
-	tx1ID := tx1.ID
-	tx1Vin := tx1.Vin
-	tx1Vout := tx1.Vout
-
-	tx2ID := tx2.ID
-	tx2Vin := tx2.Vin
-	tx2Vout := tx2.Vout
-
-	if !bytes.Equal(tx1ID, tx2ID) {
+	if !bytes.Equal(tx1.ID, tx2.ID) {
 		return false
 	}
 
-	if len(tx1Vin) != len(tx2Vin) {
+	if tx1.Type != tx2.Type {
 		return false
 	}
 
-	for i, txi := range tx1Vin {
-		txi2 := tx2Vin[i]
+	if tx1.Reason != tx2.Reason {
+		return false
+	}
 
-		if !EqualTXInput(txi, txi2) {
-			fmt.Println("F")
+	if tx1.Value != tx2.Value {
+		return false
+	}
+
+	tx1RelevantTransactionIds := tx1.RelevantTransactionIds
+	tx2RelevantTransactionIds := tx2.RelevantTransactionIds
+
+	if len(tx1RelevantTransactionIds) != len(tx2RelevantTransactionIds) {
+		return false
+	}
+
+	for i, tx1reltxid := range tx1RelevantTransactionIds {
+		tx2reltxid := tx2RelevantTransactionIds[i]
+
+		if !bytes.Equal(tx1reltxid, tx2reltxid) {
 			return false
 		}
-	}
-
-	if len(tx1Vout) != len(tx2Vout) {
-		return false
-	}
-
-	for i, txo := range tx1Vout {
-		txo2 := tx2Vout[i]
-
-		if !EqualTXOutput(txo, txo2) {
-			fmt.Println("G")
-			return false
-		}
-	}
-
-	return true
-}
-
-func EqualTXInput(in1 TXInput, in2 TXInput) bool {
-	if in1.Reason != in2.Reason {
-		return false
-	}
-
-	if in1.ScriptSig != in2.ScriptSig {
-		return false
-	}
-
-	if !bytes.Equal(in1.Txid, in2.Txid) {
-		return false
-	}
-
-	if in1.Type != in2.Type {
-		return false
-	}
-
-	if in1.Vout != in2.Vout {
-		return false
-	}
-
-	return true
-}
-
-func EqualTXOutput(out1 TXOutput, out2 TXOutput) bool {
-	if out1.ScriptPubKey != out2.ScriptPubKey {
-		return false
-	}
-
-	if out1.Value != out2.Value {
-		return false
 	}
 
 	return true

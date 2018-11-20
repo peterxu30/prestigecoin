@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"log"
 	"os"
 
 	"github.com/boltdb/bolt"
@@ -136,6 +137,18 @@ func (bc *Blockchain) Close() error {
 func (bc *Blockchain) Iterator() *BlockchainIterator {
 	bci := &BlockchainIterator{bc.head, bc.db}
 	return bci
+}
+
+// work in progress
+func DeleteBlockchain(bc *Blockchain) {
+	bc.Close()
+
+	if _, err := os.Stat(dbDir); !os.IsNotExist(err) {
+		err = os.RemoveAll(dbDir)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
 }
 
 func (bci *BlockchainIterator) Next() (*Block, error) {
