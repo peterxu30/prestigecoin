@@ -11,8 +11,9 @@ const (
 	clientUser = "clientUser"
 )
 
-func TestCreateAndUseBasicClientHappyPath(t *testing.T) {
-	client := NewBasicClient()
+func TestCreateAndUseLocalClientHappyPath(t *testing.T) {
+	client := NewLocalClient()
+	defer client.Delete()
 
 	genBytes := GenerateRandomBytes(30)
 	testRelTxIds := [][]byte{genBytes}

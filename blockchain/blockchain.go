@@ -139,8 +139,7 @@ func (bc *Blockchain) Iterator() *BlockchainIterator {
 	return bci
 }
 
-// work in progress
-func DeleteBlockchain(bc *Blockchain) {
+func (bc *Blockchain) Delete() {
 	bc.Close()
 
 	if _, err := os.Stat(dbDir); !os.IsNotExist(err) {
