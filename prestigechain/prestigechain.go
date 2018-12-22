@@ -79,6 +79,10 @@ func (pc *Prestigechain) GetTransactionById(id []byte) (*Transaction, error) {
 	return nil, nil
 }
 
+func (pc *Prestigechain) Delete() {
+	pc.bc.Delete()
+}
+
 // // Finds transactions with unspent Prestigecoins of the given address.
 // func (pc *Prestigechain) FindUnspentTransactions(address string) ([]Transaction, error) {
 // 	var unspentTXs []Transaction

@@ -6,33 +6,38 @@ type Client interface {
 	GetPrestigechain() *Prestigechain
 }
 
-type BasicClient struct {
+// LocalClient contains the master Prestigechain. Not useful for more than testing.
+type LocalClient struct {
 	pc *Prestigechain
 }
 
-func NewBasicClient() *BasicClient {
+func NewLocalClient() *LocalClient {
 	pc, err := NewPrestigechain()
 
 	if err != nil {
-		panic("Failed to create BasicClient.")
+		panic("Failed to create LocalClient.")
 	}
 
-	return &BasicClient{
+	return &LocalClient{
 		pc: pc,
 	}
 }
 
-func (bc *BasicClient) AddNewAchievementTransaction(user string, reason string, value int, relevantTxIds [][]byte) error {
+func (lc *LocalClient) AddNewAchievementTransaction(user string, reason string, value int, relevantTxIds [][]byte) error {
 	tx := NewAchievementTX(user, value, reason, relevantTxIds)
 
-	return bc.pc.AddBlock([]*Transaction{tx})
+	return lc.pc.AddBlock([]*Transaction{tx})
 }
 
-// Not implemented
-func (bc *BasicClient) FetchUpdates() error {
+// Not implemented. LocalClient contains the master Prestigechain so no updates needed.
+func (lc *LocalClient) FetchUpdates() error {
 	return nil
 }
 
-func (bc *BasicClient) GetPrestigeChain() *Prestigechain {
-	return bc.pc
+func (lc *LocalClient) GetPrestigeChain() *Prestigechain {
+	return lc.pc
+}
+
+func (lc *LocalClient) Delete() {
+	lc.pc.Delete()
 }
