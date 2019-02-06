@@ -12,8 +12,8 @@ const (
 )
 
 func TestCreateAndUseLocalClientHappyPath(t *testing.T) {
-	client := NewLocalClient()
-	defer client.Delete()
+	client, _ := NewMasterClient()
+	// defer client.Delete()
 
 	genBytes := GenerateRandomBytes(30)
 	testRelTxIds := [][]byte{genBytes}

@@ -1,43 +1,62 @@
 package prestigechain
 
 type Client interface {
-	AddNewAchievementTransaction(user, value int, reason string, relevantTxIds [][]byte) error
+	AddNewAchievementTransaction(username, value int, reason string, relevantTxIds [][]byte) error
 	FetchUpdates() error
 	GetPrestigechain() *Prestigechain
 }
 
-// LocalClient contains the master Prestigechain. Not useful for more than testing.
-type LocalClient struct {
+// MasterClient contains the master Prestigechain.
+type MasterClient struct {
 	pc *Prestigechain
+	us *UserService
 }
 
-func NewLocalClient() *LocalClient {
+func NewMasterClient() (*MasterClient, error) {
 	pc, err := NewPrestigechain()
-
 	if err != nil {
-		panic("Failed to create LocalClient.")
+		return nil, err
 	}
 
-	return &LocalClient{
+	us, err := NewUserService()
+	if err != nil {
+		return nil, err
+	}
+
+	return &MasterClient{
 		pc: pc,
-	}
+		us: us,
+	}, nil
 }
 
-func (lc *LocalClient) AddNewAchievementTransaction(user string, reason string, value int, relevantTxIds [][]byte) error {
-	tx := NewAchievementTX(user, value, reason, relevantTxIds)
-
-	return lc.pc.AddBlock([]*Transaction{tx})
+func (mc *MasterClient) AddNewUser(username, password string) error {
+	return mc.us.AddNewUser(username, password)
 }
 
-// Not implemented. LocalClient contains the master Prestigechain so no updates needed.
-func (lc *LocalClient) FetchUpdates() error {
+func (mc *MasterClient) UserExists(username string) bool {
+	return mc.us.UserExists(username)
+}
+
+func (mc *MasterClient) ValidateUserPassword(username, password string) error {
+	return mc.us.ValidateUserPassword(username, password)
+}
+
+// Assumes user has already been validated
+func (mc *MasterClient) AddNewAchievementTransaction(username string, reason string, value int, relevantTxIds [][]byte) error {
+	tx := NewAchievementTX(username, value, reason, relevantTxIds)
+
+	return mc.pc.AddBlock([]*Transaction{tx})
+}
+
+// Not implemented. MasterClient contains the master Prestigechain so no updates needed.
+func (mc *MasterClient) FetchUpdates() error {
 	return nil
 }
 
-func (lc *LocalClient) GetPrestigeChain() *Prestigechain {
-	return lc.pc
+func (mc *MasterClient) GetPrestigeChain() *Prestigechain {
+	return mc.pc
 }
 
-func (lc *LocalClient) Delete() {
-	lc.pc.Delete()
+func (mc *MasterClient) Delete() {
+	mc.pc.Delete()
 }
