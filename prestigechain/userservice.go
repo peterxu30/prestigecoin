@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/boltdb/bolt"
@@ -28,7 +29,7 @@ func NewUserService() (*UserService, error) {
 	// initialize user db
 	fullDbPath := userDbDir + "/" + userDbFile
 	if _, err := os.Stat(fullDbPath); os.IsNotExist(err) {
-		err = os.MkdirAll(fullDbPath, 0700)
+		err = os.MkdirAll(userDbDir, 0700)
 		if err != nil {
 			return nil, err
 		}
@@ -101,6 +102,17 @@ func (us *UserService) ValidateUserPassword(username, password string) error {
 	})
 
 	return err
+}
+
+func (us *UserService) Delete() {
+	us.db.Close()
+
+	if _, err := os.Stat(userDbDir); !os.IsNotExist(err) {
+		err = os.RemoveAll(userDbDir)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
 }
 
 func encodeString(s string) []byte {

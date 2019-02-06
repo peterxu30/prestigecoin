@@ -12,14 +12,14 @@ const (
 )
 
 func TestCreateAndUseLocalClientHappyPath(t *testing.T) {
-	client, _ := NewMasterClient()
-	// defer client.Delete()
+	client, err := NewMasterClient()
+	defer client.Delete()
 
 	genBytes := GenerateRandomBytes(30)
 	testRelTxIds := [][]byte{genBytes}
 	value := rand.Int()
 	reason := "happy testing"
-	err := client.AddNewAchievementTransaction(clientUser, reason, value, testRelTxIds)
+	err = client.AddNewAchievementTransaction(clientUser, reason, value, testRelTxIds)
 	if err != nil {
 		t.Errorf("Failed to add new achievement transaction")
 	}

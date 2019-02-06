@@ -1,5 +1,7 @@
 package prestigechain
 
+import "fmt"
+
 type Client interface {
 	AddNewAchievementTransaction(username, value int, reason string, relevantTxIds [][]byte) error
 	FetchUpdates() error
@@ -20,6 +22,7 @@ func NewMasterClient() (*MasterClient, error) {
 
 	us, err := NewUserService()
 	if err != nil {
+		fmt.Println("Error")
 		return nil, err
 	}
 
@@ -44,7 +47,6 @@ func (mc *MasterClient) ValidateUserPassword(username, password string) error {
 // Assumes user has already been validated
 func (mc *MasterClient) AddNewAchievementTransaction(username string, reason string, value int, relevantTxIds [][]byte) error {
 	tx := NewAchievementTX(username, value, reason, relevantTxIds)
-
 	return mc.pc.AddBlock([]*Transaction{tx})
 }
 
@@ -59,4 +61,5 @@ func (mc *MasterClient) GetPrestigeChain() *Prestigechain {
 
 func (mc *MasterClient) Delete() {
 	mc.pc.Delete()
+	mc.us.Delete()
 }

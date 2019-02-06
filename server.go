@@ -33,7 +33,7 @@ func NewServer() *server {
 }
 
 func (s *server) ListenAndServe() {
-	fmt.Printf("Prestigechain server started.")
+	log.Print("Prestigechain server started.")
 
 	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT"})
@@ -46,6 +46,8 @@ func (s *server) handleDefault() http.HandlerFunc {
 		fmt.Fprintf(w, "Welcome to Prestigechain - By the pChild")
 	}
 }
+
+// ---- Move below functionality to Prestigechain Controller ----
 
 func (s *server) handlePrestigechainInit() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -65,6 +67,8 @@ func (s *server) handlePrestigechainUpdate() http.HandlerFunc {
 		//s.pcClient.AddNewAchievementTransaction()
 	}
 }
+
+// ---- Move below functionality to User Service Controller ----
 
 func (s *server) handleAddNewUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
