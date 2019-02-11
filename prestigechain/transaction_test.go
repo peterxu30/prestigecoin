@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"testing"
 
+	"github.com/peterxu30/prestigecoin/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,19 +15,7 @@ const (
 	maxStringLength = 50
 )
 
-// Work in progress
-// func testSetup(t *testing.T) func(t *testing.T) {
-// 	blockchain.DeleteBlockchain()
-
-// 	return func(t *testing.T) {
-// 		blockchain.DeleteBlockchain()
-// 	}
-// }
-
 func TestTXEncodeAndDecodeHappyPath(t *testing.T) {
-	//testTearDown := testSetup(t)
-	//defer testTearDown(t)
-
 	tx := CreateTestTX()
 	data, err := SerializeTXs([]*Transaction{tx})
 	if err != nil {
@@ -44,24 +33,9 @@ func TestTXEncodeAndDecodeHappyPath(t *testing.T) {
 }
 
 func CreateTestTX() *Transaction {
-	bytes := GenerateRandomBytes(30)
-	tx := NewAchievementTX(user, rand.Int(), GenerateRandomString(), [][]byte{bytes})
+	bytes := utils.GenerateRandomBytes(30)
+	tx := NewAchievementTX(user, rand.Int(), utils.GenerateRandomString(maxStringLength), [][]byte{bytes})
 	return tx
-}
-
-func GenerateRandomString() string {
-	length := rand.Intn(maxStringLength)
-	var s string
-	for i := 0; i < length; i++ {
-		s += string('A' - 1 + rand.Intn(26))
-	}
-	return s
-}
-
-func GenerateRandomBytes(length int) []byte {
-	p := make([]byte, length)
-	rand.Read(p)
-	return p
 }
 
 // Function is overkill. In general use, comparing if the transaction IDs will suffice for identity checks. (No reason to check for equality.)

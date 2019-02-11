@@ -15,8 +15,7 @@ type TXType int
 
 const (
 	Achievement TXType = iota
-	Comparison
-	Association
+	Comparison         //Not implemented
 )
 
 type Transaction struct {
@@ -61,18 +60,6 @@ func (tx *Transaction) SetID() error {
 func AreEqualTransactionIds(id1 []byte, id2 []byte) bool {
 	return bytes.Equal(id1, id2)
 }
-
-// func (in *TXInput) CanUnlockOutputWith(unlockingData string) bool {
-// 	return in.ScriptSig == unlockingData
-// }
-
-// func (out *TXOutput) CanBeUnlockedWith(unlockingData string) bool {
-// 	return out.ScriptPubKey == unlockingData
-// }
-
-// func (tx Transaction) IsNewAchievement() bool {
-// 	return len(tx.Vin) == 1 && len(tx.Vin[0].Txid) == 0 && tx.Vin[0].Vout == -1
-// }
 
 func SerializeTXs(transactions []*Transaction) ([]byte, error) {
 	var data bytes.Buffer

@@ -1,28 +1,49 @@
-package prestigechain
+package client
 
-import "fmt"
+import (
+	"log"
+	"sync"
+
+	"github.com/peterxu30/prestigecoin/prestigechain"
+)
 
 type Client interface {
 	AddNewAchievementTransaction(username, value int, reason string, relevantTxIds [][]byte) error
 	FetchUpdates() error
-	GetPrestigechain() *Prestigechain
+	GetPrestigechain() *prestigechain.Prestigechain
 }
+
+// TODO: Make the MasterClient thread safe
 
 // MasterClient contains the master Prestigechain.
 type MasterClient struct {
-	pc *Prestigechain
+	pc *prestigechain.Prestigechain
 	us *UserService
 }
 
-func NewMasterClient() (*MasterClient, error) {
-	pc, err := NewPrestigechain()
+var _masterClient *MasterClient
+var once sync.Once
+
+func GetOrCreateMasterClient() *MasterClient {
+	once.Do(func() {
+		var err error
+		_masterClient, err = newMasterClient()
+		if err != nil {
+			log.Panicln("Failed to create MasterClient", err)
+		}
+	})
+
+	return _masterClient
+}
+
+func newMasterClient() (*MasterClient, error) {
+	pc, err := prestigechain.NewPrestigechain()
 	if err != nil {
 		return nil, err
 	}
 
 	us, err := NewUserService()
 	if err != nil {
-		fmt.Println("Error")
 		return nil, err
 	}
 
@@ -46,8 +67,8 @@ func (mc *MasterClient) ValidateUserPassword(username, password string) error {
 
 // Assumes user has already been validated
 func (mc *MasterClient) AddNewAchievementTransaction(username string, reason string, value int, relevantTxIds [][]byte) error {
-	tx := NewAchievementTX(username, value, reason, relevantTxIds)
-	return mc.pc.AddBlock([]*Transaction{tx})
+	tx := prestigechain.NewAchievementTX(username, value, reason, relevantTxIds)
+	return mc.pc.AddBlock([]*prestigechain.Transaction{tx})
 }
 
 // Not implemented. MasterClient contains the master Prestigechain so no updates needed.
@@ -55,11 +76,11 @@ func (mc *MasterClient) FetchUpdates() error {
 	return nil
 }
 
-func (mc *MasterClient) GetPrestigeChain() *Prestigechain {
+func (mc *MasterClient) GetPrestigeChain() *prestigechain.Prestigechain {
 	return mc.pc
 }
 
-func (mc *MasterClient) Delete() {
-	mc.pc.Delete()
-	mc.us.Delete()
+func DeleteMasterClient(mc *MasterClient) {
+	prestigechain.DeletePrestigechain(mc.pc)
+	DeleteUserService(mc.us)
 }

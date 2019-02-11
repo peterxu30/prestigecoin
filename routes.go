@@ -13,35 +13,29 @@ type Route struct {
 
 type Routes []Route
 
-// Add all routes from all controllers here
-func (s *server) initializeRoutes() Routes {
-	var routes = Routes{
-		Route{
-			"Index",
-			"GET",
-			"/",
-			s.handleDefault(),
-		},
-		Route{
-			"Init",
-			"GET",
-			"/init",
-			s.handlePrestigechainInit(),
-		},
-		Route{
-			"AddNewUser",
-			"POST",
-			"/newuser",
-			s.handleAddNewUser(),
-		},
-	}
-
-	return routes
+var routes = Routes{
+	Route{
+		"Index",
+		"GET",
+		"/",
+		s.handleDefault(),
+	},
+	Route{
+		"Init",
+		"GET",
+		"/init",
+		s.handlePrestigechainInit(),
+	},
+	Route{
+		"AddNewUser",
+		"POST",
+		"/newuser",
+		s.handleAddNewUser(),
+	},
 }
 
-func InitializeRouter(s *server) {
-	routes := s.initializeRoutes()
-
+// Add all routes from all controllers here
+func InitializeRoutes(s *server) Routes {
 	for _, route := range routes {
 		var handler http.HandlerFunc
 		log.Println(route.Name)

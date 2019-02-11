@@ -1,4 +1,4 @@
-package prestigechain
+package client
 
 import (
 	"bytes"
@@ -104,7 +104,7 @@ func (us *UserService) ValidateUserPassword(username, password string) error {
 	return err
 }
 
-func (us *UserService) Delete() {
+func DeleteUserService(us *UserService) {
 	us.db.Close()
 
 	if _, err := os.Stat(userDbDir); !os.IsNotExist(err) {

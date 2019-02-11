@@ -1,25 +1,28 @@
-package prestigechain
+package client
 
 import (
 	"bytes"
 	"fmt"
 	"math/rand"
 	"testing"
+
+	"github.com/peterxu30/prestigecoin/prestigechain"
+	"github.com/peterxu30/prestigecoin/utils"
 )
 
 const (
 	clientUser = "clientUser"
 )
 
-func TestCreateAndUseLocalClientHappyPath(t *testing.T) {
-	client, err := NewMasterClient()
-	defer client.Delete()
+func TestCreateAndUseMasterClientHappyPath(t *testing.T) {
+	client := GetOrCreateMasterClient()
+	defer DeleteMasterClient(client)
 
-	genBytes := GenerateRandomBytes(30)
+	genBytes := utils.GenerateRandomBytes(30)
 	testRelTxIds := [][]byte{genBytes}
 	value := rand.Int()
 	reason := "happy testing"
-	err = client.AddNewAchievementTransaction(clientUser, reason, value, testRelTxIds)
+	err := client.AddNewAchievementTransaction(clientUser, reason, value, testRelTxIds)
 	if err != nil {
 		t.Errorf("Failed to add new achievement transaction")
 	}
@@ -45,7 +48,7 @@ func TestCreateAndUseLocalClientHappyPath(t *testing.T) {
 		t.Errorf("Incorrect relevant transaction id.")
 	}
 
-	if tx.Type != Achievement {
+	if tx.Type != prestigechain.Achievement {
 		t.Errorf("Incorrect transaction type.")
 	}
 

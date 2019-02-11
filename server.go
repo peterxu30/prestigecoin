@@ -10,7 +10,7 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	prestigechain "github.com/peterxu30/prestigecoin/prestigechain"
+	"github.com/peterxu30/prestigecoin/prestigechain"
 )
 
 type iServer interface {
@@ -41,30 +41,10 @@ func (s *server) ListenAndServe() {
 	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(allowedOrigins, allowedMethods)(s.router)))
 }
 
+// Consider moving this to some controller as well
 func (s *server) handleDefault() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Welcome to Prestigechain - By the pChild")
-	}
-}
-
-// ---- Move below functionality to Prestigechain Controller ----
-
-func (s *server) handlePrestigechainInit() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		pcClient, err := prestigechain.NewMasterClient()
-		if err != nil {
-			fmt.Fprintf(w, "Prestigechain creation failed: %v", err)
-			return
-		}
-		s.pcClient = pcClient
-
-		fmt.Fprintf(w, "Prestigechain created.")
-	}
-}
-
-func (s *server) handlePrestigechainUpdate() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		//s.pcClient.AddNewAchievementTransaction()
 	}
 }
 

@@ -1,7 +1,7 @@
 package prestigechain
 
 import (
-	blockchain "github.com/peterxu30/prestigecoin/blockchain"
+	blockchain "github.com/peterxu30/blockchain"
 )
 
 type PrestigeBlock struct {
