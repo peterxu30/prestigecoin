@@ -86,7 +86,7 @@ func DeletePrestigechain(pc *Prestigechain) {
 
 func (pci *PrestigechainIterator) Next() (*PrestigeBlock, error) {
 	block, err := pci.bci.Next()
-	if err != nil {
+	if block == nil {
 		return nil, err
 	}
 
