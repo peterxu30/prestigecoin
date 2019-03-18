@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/peterxu30/prestigecoin/client"
 	"github.com/peterxu30/prestigecoin/prestigechain"
@@ -38,11 +39,27 @@ func (mcc *MasterClientController) HandlePrestigechainUpdate() http.HandlerFunc 
 
 func (mcc *MasterClientController) HandlePrestigechainGet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		blocks := mcc.client.GetBlocks(0, 50) //placeholder values
+		start, end := 0, 50
 
-		transactions := make([]*prestigechain.Transaction, len(blocks))
-		for i, block := range blocks {
-			transactions[i] = block.Transactions[0]
+		startParam, ok := r.URL.Query()["start"]
+		if ok && len(startParam[0]) >= 1 {
+			if startIndex, err := strconv.Atoi(startParam[0]); err == nil {
+				start = startIndex
+			}
+		}
+
+		endParam, ok := r.URL.Query()["end"]
+		if ok && len(endParam[0]) >= 1 {
+			if endIndex, err := strconv.Atoi(endParam[0]); err == nil {
+				end = endIndex
+			}
+		}
+
+		blocks := mcc.client.GetBlocks(start, end)
+
+		transactions := make([]*prestigechain.Transaction, 0, len(blocks))
+		for _, block := range blocks {
+			transactions = append(transactions, block.Transactions[0])
 		}
 
 		w.Header().Set("Content-Type", "application/json")

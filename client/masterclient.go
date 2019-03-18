@@ -85,21 +85,18 @@ func (mc *MasterClient) GetPrestigeChain() *prestigechain.Prestigechain {
 func (mc *MasterClient) GetBlocks(start, end int) []*prestigechain.PrestigeBlock {
 	iterator := mc.pc.Iterator()
 	numBlocks := end - start
-	var blocks = make([]*prestigechain.PrestigeBlock, 50, numBlocks)
+	var blocks = make([]*prestigechain.PrestigeBlock, 0, numBlocks)
 	for i := 0; i < end; i++ {
-		if i < start {
-			continue
-		}
-
 		block, _ := iterator.Next()
 		if block == nil {
-			blocks = blocks[0 : i-(start+1)]
+			// blocks = blocks[0 : i-(start+1)]
 			break
 		}
 
-		blocks[i-start] = block
+		if i >= start {
+			blocks = append(blocks, block)
+		}
 	}
-
 	return blocks
 }
 
