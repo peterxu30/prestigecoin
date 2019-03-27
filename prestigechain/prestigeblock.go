@@ -5,6 +5,6 @@ import (
 )
 
 type PrestigeBlock struct {
-	Block        *blockchain.Block
+	Header       *blockchain.BlockHeader
 	Transactions []*Transaction
 }

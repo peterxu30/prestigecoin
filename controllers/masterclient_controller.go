@@ -64,6 +64,6 @@ func (mcc *MasterClientController) HandlePrestigechainGet() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(transactions)
+		json.NewEncoder(w).Encode(blocks)
 	}
 }

@@ -56,6 +56,7 @@ func (pc *Prestigechain) Iterator() *PrestigechainIterator {
 	return pci
 }
 
+// Consider deleting
 func (pc *Prestigechain) GetTransactionById(id []byte) (*Transaction, error) {
 	pci := pc.Iterator()
 
@@ -72,7 +73,7 @@ func (pc *Prestigechain) GetTransactionById(id []byte) (*Transaction, error) {
 			}
 		}
 
-		if block.Block.IsLastBlock() {
+		if block.Header.IsLastBlock() {
 			break
 		}
 	}
@@ -96,7 +97,7 @@ func (pci *PrestigechainIterator) Next() (*PrestigeBlock, error) {
 	}
 
 	return &PrestigeBlock{
-		Block:        block,
+		Header:       block.Header,
 		Transactions: transactions,
 	}, nil
 }

@@ -89,7 +89,6 @@ func (mc *MasterClient) GetBlocks(start, end int) []*prestigechain.PrestigeBlock
 	for i := 0; i < end; i++ {
 		block, _ := iterator.Next()
 		if block == nil {
-			// blocks = blocks[0 : i-(start+1)]
 			break
 		}
 
