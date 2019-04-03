@@ -34,13 +34,18 @@ func NewPrestigechain() (*Prestigechain, error) {
 	return &Prestigechain{blockchain}, nil
 }
 
-func (pc *Prestigechain) AddBlock(transactions []*Transaction) error {
+func (pc *Prestigechain) AddBlock(transactions []*Transaction) (*PrestigeBlock, error) {
 	encodedTransactions, err := SerializeTXs(transactions)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return pc.bc.AddBlock(encodedTransactions)
+	block, err := pc.bc.AddBlock(encodedTransactions)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewPrestigeBlock(block)
 }
 
 func (pc *Prestigechain) GetDifficulty() int {
@@ -91,13 +96,5 @@ func (pci *PrestigechainIterator) Next() (*PrestigeBlock, error) {
 		return nil, err
 	}
 
-	transactions, err := DeserializeTXs(block.GetData())
-	if err != nil {
-		return nil, err
-	}
-
-	return &PrestigeBlock{
-		Header:       block.Header,
-		Transactions: transactions,
-	}, nil
+	return NewPrestigeBlock(block)
 }

@@ -65,7 +65,7 @@ func (mc *MasterClient) ValidateUserPassword(username, password string) error {
 }
 
 // Assumes user has already been validated
-func (mc *MasterClient) AddNewAchievementTransaction(user string, value int, reason string, relevantTransactionIds [][]byte) error {
+func (mc *MasterClient) AddNewAchievementTransaction(user string, value int, reason string, relevantTransactionIds [][]byte) (*prestigechain.PrestigeBlock, error) {
 	tx := prestigechain.NewAchievementTX(user, value, reason, relevantTransactionIds)
 	return mc.pc.AddBlock([]*prestigechain.Transaction{tx})
 }

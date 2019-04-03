@@ -22,13 +22,8 @@ func TestCreateAndUseMasterClientHappyPath(t *testing.T) {
 	testRelTxIds := [][]byte{genBytes}
 	value := rand.Int()
 	reason := "happy testing"
-	updateData := PrestigechainUpdateData{
-		User:   clientUser,
-		Reason: reason,
-		Value:  value,
-		RelevantTransactionIds: testRelTxIds,
-	}
-	err := client.AddNewAchievementTransaction(updateData)
+
+	_, err := client.AddNewAchievementTransaction(clientUser, value, reason, testRelTxIds)
 	if err != nil {
 		t.Errorf("Failed to add new achievement transaction")
 	}
