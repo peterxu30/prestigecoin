@@ -48,8 +48,8 @@ func (pc *Prestigechain) AddBlock(transactions []*Transaction) (*PrestigeBlock, 
 	return NewPrestigeBlock(block)
 }
 
-func (pc *Prestigechain) GetDifficulty() int {
-	return pc.bc.GetDifficulty()
+func (pc *Prestigechain) Difficulty() int {
+	return pc.bc.Difficulty()
 }
 
 func (pc *Prestigechain) Close() error {

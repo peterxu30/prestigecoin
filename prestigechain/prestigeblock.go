@@ -10,7 +10,7 @@ type PrestigeBlock struct {
 }
 
 func NewPrestigeBlock(block *blockchain.Block) (*PrestigeBlock, error) {
-	transactions, err := DeserializeTXs(block.GetData())
+	transactions, err := DeserializeTXs(block.Data)
 	if err != nil {
 		return nil, err
 	}
