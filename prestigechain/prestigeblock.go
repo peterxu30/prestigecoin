@@ -1,15 +1,15 @@
 package prestigechain
 
 import (
-	blockchain "github.com/peterxu30/blockchain"
+	cloudchain "github.com/peterxu30/cloudchain"
 )
 
 type PrestigeBlock struct {
-	Header       *blockchain.BlockHeader
+	Header       *cloudchain.BlockHeader
 	Transactions []*Transaction
 }
 
-func NewPrestigeBlock(block *blockchain.Block) (*PrestigeBlock, error) {
+func NewPrestigeBlock(block *cloudchain.Block) (*PrestigeBlock, error) {
 	transactions, err := DeserializeTXs(block.Data)
 	if err != nil {
 		return nil, err

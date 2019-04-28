@@ -1,13 +1,14 @@
 package client
 
 import (
+	"context"
 	"log"
 	"sync"
 
 	"github.com/peterxu30/prestigecoin/prestigechain"
 )
 
-// TODO: Make the MasterClient thread safe. Might already be since BoltDB is threadsafe
+// TODO: Make the MasterClient thread safe.
 
 // MasterClient contains the master Prestigechain.
 type MasterClient struct {
@@ -18,10 +19,10 @@ type MasterClient struct {
 var _masterClient *MasterClient
 var once sync.Once
 
-func GetOrCreateMasterClient() *MasterClient {
+func GetOrCreateMasterClient(ctx context.Context, projectId string) *MasterClient {
 	once.Do(func() {
 		var err error
-		_masterClient, err = newMasterClient()
+		_masterClient, err = newMasterClient(ctx, projectId)
 		if err != nil {
 			log.Panicln("Failed to create MasterClient", err)
 		}
@@ -30,8 +31,8 @@ func GetOrCreateMasterClient() *MasterClient {
 	return _masterClient
 }
 
-func newMasterClient() (*MasterClient, error) {
-	pc, err := prestigechain.NewPrestigechain()
+func newMasterClient(ctx context.Context, projectId string) (*MasterClient, error) {
+	pc, err := prestigechain.NewPrestigechain(ctx, projectId)
 	if err != nil {
 		log.Println("bad pc")
 		return nil, err
@@ -49,25 +50,10 @@ func newMasterClient() (*MasterClient, error) {
 	}, nil
 }
 
-// todo: move this functionality elsewhere. masterclient should only deal with the prestigechain
-func (mc *MasterClient) AddNewUser(username, password string) error {
-	return mc.us.AddNewUser(username, password)
-}
-
-// todo: move this functionality elsewhere. masterclient should only deal with the prestigechain
-func (mc *MasterClient) UserExists(username string) bool {
-	return mc.us.UserExists(username)
-}
-
-// todo: move this functionality elsewhere. masterclient should only deal with the prestigechain
-func (mc *MasterClient) ValidateUserPassword(username, password string) error {
-	return mc.us.ValidateUserPassword(username, password)
-}
-
 // Assumes user has already been validated
-func (mc *MasterClient) AddNewAchievementTransaction(user string, value int, reason string, relevantTransactionIds [][]byte) (*prestigechain.PrestigeBlock, error) {
+func (mc *MasterClient) AddNewAchievementTransaction(ctx context.Context, user string, value int, reason string, relevantTransactionIds [][]byte) (*prestigechain.PrestigeBlock, error) {
 	tx := prestigechain.NewAchievementTX(user, value, reason, relevantTransactionIds)
-	return mc.pc.AddBlock([]*prestigechain.Transaction{tx})
+	return mc.pc.AddBlock(ctx, []*prestigechain.Transaction{tx})
 }
 
 // Not implemented. MasterClient contains the master Prestigechain so no updates needed.
@@ -82,8 +68,12 @@ func (mc *MasterClient) GetPrestigeChain() *prestigechain.Prestigechain {
 //todo: consider caching
 // Gets blocks from start (most recent) to end (least recent) exclusive of end.
 // The newest block is at index 0 and the oldest block is at index n where length of the entire Prestigechain is n.
-func (mc *MasterClient) GetBlocks(start, end int) []*prestigechain.PrestigeBlock {
-	iterator := mc.pc.Iterator()
+func (mc *MasterClient) GetBlocks(ctx context.Context, start, end int) ([]*prestigechain.PrestigeBlock, error) {
+	iterator, err := mc.pc.Iterator(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	numBlocks := end - start
 	var blocks = make([]*prestigechain.PrestigeBlock, 0, numBlocks)
 	for i := 0; i < end; i++ {
@@ -96,10 +86,10 @@ func (mc *MasterClient) GetBlocks(start, end int) []*prestigechain.PrestigeBlock
 			blocks = append(blocks, block)
 		}
 	}
-	return blocks
+	return blocks, nil
 }
 
-func DeleteMasterClient(mc *MasterClient) {
-	prestigechain.DeletePrestigechain(mc.pc)
+func DeleteMasterClient(ctx context.Context, mc *MasterClient) {
+	prestigechain.DeletePrestigechain(ctx, mc.pc)
 	DeleteUserService(mc.us)
 }

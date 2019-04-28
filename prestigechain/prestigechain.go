@@ -1,7 +1,9 @@
 package prestigechain
 
 import (
-	blockchain "github.com/peterxu30/blockchain"
+	"context"
+
+	cloudchain "github.com/peterxu30/cloudchain"
 )
 
 const (
@@ -12,35 +14,35 @@ const (
 )
 
 type Prestigechain struct {
-	bc *blockchain.Blockchain
+	cc *cloudchain.CloudChain
 }
 
 type PrestigechainIterator struct {
-	bci *blockchain.BlockchainIterator
+	cci *cloudchain.CloudChainIterator
 }
 
-func NewPrestigechain() (*Prestigechain, error) {
+func NewPrestigechain(ctx context.Context, projectId string) (*Prestigechain, error) {
 	genesisTx := NewAchievementTX(genesisBlockCreator, 0, genesisBlockCreatedMsg, nil)
 	encodedGenesisTx, err := SerializeTXs([]*Transaction{genesisTx})
 	if err != nil {
 		return nil, err
 	}
 
-	blockchain, err := blockchain.NewBlockChain(prestigeChainDbDir, difficulty, encodedGenesisTx)
+	cloudchain, err := cloudchain.NewCloudChain(ctx, projectId, difficulty, encodedGenesisTx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Prestigechain{blockchain}, nil
+	return &Prestigechain{cloudchain}, nil
 }
 
-func (pc *Prestigechain) AddBlock(transactions []*Transaction) (*PrestigeBlock, error) {
+func (pc *Prestigechain) AddBlock(ctx context.Context, transactions []*Transaction) (*PrestigeBlock, error) {
 	encodedTransactions, err := SerializeTXs(transactions)
 	if err != nil {
 		return nil, err
 	}
 
-	block, err := pc.bc.AddBlock(encodedTransactions)
+	block, err := pc.cc.AddBlock(ctx, encodedTransactions)
 	if err != nil {
 		return nil, err
 	}
@@ -49,21 +51,29 @@ func (pc *Prestigechain) AddBlock(transactions []*Transaction) (*PrestigeBlock, 
 }
 
 func (pc *Prestigechain) Difficulty() int {
-	return pc.bc.Difficulty()
+	return pc.cc.Difficulty()
 }
 
-func (pc *Prestigechain) Close() error {
-	return pc.bc.Close()
-}
+// func (pc *Prestigechain) Close() error {
+// 	return pc.cc.Close()
+// }
 
-func (pc *Prestigechain) Iterator() *PrestigechainIterator {
-	pci := &PrestigechainIterator{pc.bc.Iterator()}
-	return pci
+func (pc *Prestigechain) Iterator(ctx context.Context) (*PrestigechainIterator, error) {
+	cci, err := pc.cc.Iterator(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	pci := &PrestigechainIterator{cci}
+	return pci, nil
 }
 
 // Consider deleting
-func (pc *Prestigechain) GetTransactionById(id []byte) (*Transaction, error) {
-	pci := pc.Iterator()
+func (pc *Prestigechain) GetTransactionById(ctx context.Context, id []byte) (*Transaction, error) {
+	pci, err := pc.Iterator(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	for {
 		block, err := pci.Next()
@@ -86,12 +96,12 @@ func (pc *Prestigechain) GetTransactionById(id []byte) (*Transaction, error) {
 	return nil, nil
 }
 
-func DeletePrestigechain(pc *Prestigechain) {
-	blockchain.DeleteBlockchain(pc.bc)
+func DeletePrestigechain(ctx context.Context, pc *Prestigechain) {
+	cloudchain.DeleteCloudChain(ctx, pc.cc)
 }
 
 func (pci *PrestigechainIterator) Next() (*PrestigeBlock, error) {
-	block, err := pci.bci.Next()
+	block, err := pci.cci.Next()
 	if block == nil {
 		return nil, err
 	}

@@ -45,36 +45,6 @@ func handleDefault() http.HandlerFunc {
 	}
 }
 
-// ---- Move below functionality to User Service Controller ----
-
-// func (s *server) handleAddNewUser() http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		//all temp code
-// 		var userData prestigechain.UserData
-// 		body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-// 		if err != nil {
-// 			log.Println(err)
-// 			return
-// 		}
-
-// 		log.Println(body)
-
-// 		if err := json.Unmarshal(body, &userData); err != nil { // unmarshall body contents as a type Candidate
-// 			w.WriteHeader(422) // unprocessable entity
-// 			log.Println(err)
-// 			if err := json.NewEncoder(w).Encode(err); err != nil {
-// 				log.Fatalln("Error AddProduct unmarshalling data", err)
-// 				w.WriteHeader(http.StatusInternalServerError)
-// 				return
-// 			}
-// 		}
-
-// 		log.Println(userData.Username + " " + userData.Password)
-
-// 		fmt.Fprintf(w, "User added")
-// 	}
-// }
-
 func main() {
 	s := NewServer()
 	s.ListenAndServe()

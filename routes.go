@@ -1,9 +1,15 @@
 package main //change package to server-esque package
+
 import (
+	"context"
 	"log"
 	"net/http"
 
 	"github.com/peterxu30/prestigecoin/controllers"
+)
+
+const (
+	prestigechainProjectId = "prestigechain"
 )
 
 type Route struct {
@@ -16,7 +22,7 @@ type Route struct {
 type Routes []Route
 
 // Initialize controllers here and add their methods to routes
-var _masterClientController = controllers.NewMasterClientController()
+var _masterClientController = controllers.NewMasterClientController(context.Background(), prestigechainProjectId)
 
 var routes = Routes{
 	Route{
