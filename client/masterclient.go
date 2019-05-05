@@ -5,6 +5,8 @@ import (
 	"log"
 	"sync"
 
+	"github.com/peterxu30/cloudchain"
+
 	"github.com/peterxu30/prestigecoin/prestigechain"
 )
 
@@ -34,19 +36,11 @@ func GetOrCreateMasterClient(ctx context.Context, projectId string) *MasterClien
 func newMasterClient(ctx context.Context, projectId string) (*MasterClient, error) {
 	pc, err := prestigechain.NewPrestigechain(ctx, projectId)
 	if err != nil {
-		log.Println("bad pc")
-		return nil, err
-	}
-
-	us, err := NewUserService()
-	if err != nil {
-		log.Println("bad user service")
 		return nil, err
 	}
 
 	return &MasterClient{
 		pc: pc,
-		us: us,
 	}, nil
 }
 
@@ -67,25 +61,27 @@ func (mc *MasterClient) GetPrestigeChain() *prestigechain.Prestigechain {
 
 //todo: consider caching
 // Gets blocks from start (most recent) to end (least recent) exclusive of end.
+// If more blocks are requested than exist in the PrestigeChain, GetBlocks will return all blocks in the PrestigeChain.
 // The newest block is at index 0 and the oldest block is at index n where length of the entire Prestigechain is n.
-func (mc *MasterClient) GetBlocks(ctx context.Context, start, end int) ([]*prestigechain.PrestigeBlock, error) {
+func (mc *MasterClient) GetBlocks(ctx context.Context, numBlocks int) ([]*prestigechain.PrestigeBlock, error) {
 	iterator, err := mc.pc.Iterator(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	numBlocks := end - start
 	var blocks = make([]*prestigechain.PrestigeBlock, 0, numBlocks)
-	for i := 0; i < end; i++ {
-		block, _ := iterator.Next()
-		if block == nil {
-			break
-		}
-
-		if i >= start {
+	for i := 0; i < numBlocks; i++ {
+		block, err := iterator.Next()
+		if err == nil {
 			blocks = append(blocks, block)
+			continue
+		} else if _, ok := err.(*cloudchain.StopIterationError); ok {
+			break
+		} else {
+			return nil, err
 		}
 	}
+
 	return blocks, nil
 }
 

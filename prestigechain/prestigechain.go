@@ -51,7 +51,7 @@ func (pc *Prestigechain) AddBlock(ctx context.Context, transactions []*Transacti
 }
 
 func (pc *Prestigechain) Difficulty() int {
-	return pc.cc.Difficulty()
+	return pc.cc.Difficulty
 }
 
 // func (pc *Prestigechain) Close() error {
@@ -102,7 +102,7 @@ func DeletePrestigechain(ctx context.Context, pc *Prestigechain) {
 
 func (pci *PrestigechainIterator) Next() (*PrestigeBlock, error) {
 	block, err := pci.cci.Next()
-	if block == nil {
+	if err != nil {
 		return nil, err
 	}
 

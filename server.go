@@ -1,7 +1,6 @@
 package main //change package to server-esque package
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -36,13 +35,6 @@ func (s *server) ListenAndServe() {
 	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT"})
 
 	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(allowedOrigins, allowedMethods)(s.router)))
-}
-
-// Consider moving this to some controller as well
-func handleDefault() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Welcome to Prestigechain - By the pChild")
-	}
 }
 
 func main() {

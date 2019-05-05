@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -20,6 +21,17 @@ func NewMasterClientController(ctx context.Context, projectId string) *MasterCli
 	mcc.client = client.GetOrCreateMasterClient(ctx, projectId)
 	return mcc
 }
+
+//TEST METHOD
+// func (mcc *MasterClientController) Init(ctx context.Context, projectId string) (msg string) {
+// 	defer func() {
+// 		if re := recover(); re != nil {
+// 			msg = string(debug.Stack())
+// 		}
+// 	}()
+// 	mcc.client = client.GetOrCreateMasterClient(ctx, projectId)
+// 	return ""
+// }
 
 func (mcc *MasterClientController) HandlePrestigechainUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -40,26 +52,32 @@ func (mcc *MasterClientController) HandlePrestigechainUpdate() http.HandlerFunc 
 
 func (mcc *MasterClientController) HandlePrestigechainGet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		start, end := 0, 50
+		numBlocks := 50
 
-		startParam, ok := r.URL.Query()["start"]
-		if ok && len(startParam[0]) >= 1 {
-			if startIndex, err := strconv.Atoi(startParam[0]); err == nil {
-				start = startIndex
+		numBlocksParam, ok := r.URL.Query()["numBlocks"]
+		if ok && len(numBlocksParam[0]) >= 1 {
+			if numBlocksValue, err := strconv.Atoi(numBlocksParam[0]); err == nil {
+				numBlocks = numBlocksValue
+			} else {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusBadRequest)
+				fmt.Fprintf(w, err.Error())
+				return
 			}
 		}
 
-		endParam, ok := r.URL.Query()["end"]
-		if ok && len(endParam[0]) >= 1 {
-			if endIndex, err := strconv.Atoi(endParam[0]); err == nil {
-				end = endIndex
-			}
-		}
+		// errMsg = "No error"
+		// defer func() {
+		// 	if re := recover(); re != nil {
+		// 		errMsg = string(debug.Stack())
+		// 	}
+		// }()
 
-		blocks, err := mcc.client.GetBlocks(r.Context(), start, end)
+		blocks, err := mcc.client.GetBlocks(r.Context(), numBlocks)
 		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusNoContent)
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, err.Error())
 			return
 		}
 
@@ -70,6 +88,6 @@ func (mcc *MasterClientController) HandlePrestigechainGet() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(blocks)
+		json.NewEncoder(w).Encode(transactions)
 	}
 }

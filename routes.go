@@ -2,6 +2,7 @@ package main //change package to server-esque package
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -9,7 +10,7 @@ import (
 )
 
 const (
-	prestigechainProjectId = "prestigechain"
+	prestigecoinProjectId = "prestigecoin"
 )
 
 type Route struct {
@@ -22,7 +23,14 @@ type Route struct {
 type Routes []Route
 
 // Initialize controllers here and add their methods to routes
-var _masterClientController = controllers.NewMasterClientController(context.Background(), prestigechainProjectId)
+var _masterClientController = controllers.NewMasterClientController(context.Background(), prestigecoinProjectId)
+
+// Consider moving this to some controller as well
+func handleDefault() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Welcome to Prestigechain - By the pChild")
+	}
+}
 
 var routes = Routes{
 	Route{
@@ -31,6 +39,20 @@ var routes = Routes{
 		"/",
 		handleDefault(),
 	},
+	// Route{
+	// 	"Init",
+	// 	"GET",
+	// 	"/init",
+	// 	func(w http.ResponseWriter, r *http.Request) {
+	// 		// defer func() {
+	// 		// 	if re := recover(); re != nil {
+	// 		// 		fmt.Fprintln(w, "Init failed", re)
+	// 		// 	}
+	// 		// }()
+	// 		msg := _masterClientController.Init(r.Context(), prestigecoinProjectId)
+	// 		fmt.Fprintln(w, msg)
+	// 	},
+	// },
 	// Route{
 	// 	"AddNewUser",
 	// 	"POST",
